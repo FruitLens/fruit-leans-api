@@ -11,7 +11,11 @@ FRUIT_TYPE_CLASS_NAMES = ["APPLE", "BANANA", "ORANGE"]
 
 app = FastAPI()
 
-model = tf.keras.models.load_model(os.path.join("./models", "fruitclassifier.h5"))
+# outside docker
+# model = tf.keras.models.load_model(os.path.join("../models", "fruitclassifier.h5"))
+
+# inside docker
+model = tf.keras.models.load_model(os.path.join("./fruitclassifier.h5"))
 
 
 @app.get("/")
