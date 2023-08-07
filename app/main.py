@@ -20,7 +20,7 @@ model = tf.keras.models.load_model(os.path.join("./fruitclassifier.h5"))
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return "FruitLens API"
 
 
 @app.post("/predict/fruit-type")
