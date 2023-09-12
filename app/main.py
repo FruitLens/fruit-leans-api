@@ -1,5 +1,7 @@
 import io
 import os
+import boto3
+from botocore.exceptions import ClientError
 
 import numpy as np
 import tensorflow as tf
@@ -9,6 +11,7 @@ IMG_HEIGHT = 256
 IMG_WIDTH = 256
 FRUIT_TYPE_CLASS_NAMES = ["APPLE", "BANANA", "ORANGE"]
 FRUIT_STAGES_CLASS_NAMES = ["OVERRIPE", "RAW", "RIPE"]
+BUCKET_NAME = "fruit-lens-dream-team-training-data"
 
 app = FastAPI()
 
@@ -48,6 +51,15 @@ async def predict_fruit_from_image(file: UploadFile):
         "stage": {"name": fruit_stage_class, "confidence": fruit_stage_confidence},
     }
 
+@app.post("/upload")
+async def upload_file_to_s3(file: UploadFile, file_name):
+    print(file_name)
+    if (upload_file(file, "users_images/"+ file_name)):
+        return "SUCCESS"
+    else: 
+        return "ERROR"
+
+
 
 def __image_to_image_array(img_path):
     img = tf.keras.utils.load_img(img_path, target_size=(IMG_HEIGHT, IMG_WIDTH))
@@ -76,3 +88,19 @@ def predict_stages(img_array):
     confidence = 100 * np.max(score)
 
     return stage, confidence
+
+async def upload_file(file_name, bucket, object_name):
+    if object_name is None:
+        object_name = os.path.basename(file_name)
+
+    s3 = boto3.client('s3')
+    try:
+        s3 = boto3.client('s3')
+        s3.put_object(
+            Bucket=bucket,
+            Key=object_name,
+            Body=file_name
+        )
+    except ClientError as e:
+        return False
+    return True
