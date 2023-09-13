@@ -52,13 +52,19 @@ async def predict_fruit_from_image(file: UploadFile):
     }
 
 @app.post("/upload")
-async def upload_file_to_s3(file: UploadFile, file_name):
-    print(file_name)
-    if (upload_file(file, "users_images/"+ file_name)):
-        return "SUCCESS"
-    else: 
-        return "ERROR"
-
+async def upload_file_to_s3(file: UploadFile, file_name: str):
+    s3 = boto3.client('s3')
+    try:
+        s3 = boto3.client('s3')
+        s3.put_object(
+            Bucket=BUCKET_NAME,
+            Key="users_images/" + file_name,
+            Body=file.file
+        )
+    except Exception as e:
+        print(e)
+        return False
+    return True
 
 
 def __image_to_image_array(img_path):
@@ -88,19 +94,3 @@ def predict_stages(img_array):
     confidence = 100 * np.max(score)
 
     return stage, confidence
-
-async def upload_file(file_name, bucket, object_name):
-    if object_name is None:
-        object_name = os.path.basename(file_name)
-
-    s3 = boto3.client('s3')
-    try:
-        s3 = boto3.client('s3')
-        s3.put_object(
-            Bucket=bucket,
-            Key=object_name,
-            Body=file_name
-        )
-    except ClientError as e:
-        return False
-    return True
