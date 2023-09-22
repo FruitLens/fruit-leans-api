@@ -19,9 +19,18 @@ def init_db(db: Session) -> None:
     # Base.metadata.create_all(bind=engine)
 
     fruit_types_names = ["APPLE", "BANANA", "ORANGE"]
+    fruit_maturation_stages_names = ["RAW", "UNRIPE", "RIPE", "OVERRIPE", "ROTTEN"]
 
     for f_name in fruit_types_names:
         fruit_type = crud.fruit_type.get_by_name(db, name=f_name)
         if fruit_type is None:
             fruit_type_in = schemas.FruitTypeCreate(name=f_name)
             crud.fruit_type.create(db, obj_in=fruit_type_in)
+
+    for f_name in fruit_maturation_stages_names:
+        fruit_maturation_stage = crud.fruit_maturation_stage.get_by_name(
+            db, name=f_name
+        )
+        if fruit_maturation_stage is None:
+            fruit_maturation_stage_in = schemas.FruitMaturationStageCreate(name=f_name)
+            crud.fruit_maturation_stage.create(db, obj_in=fruit_maturation_stage_in)

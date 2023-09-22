@@ -1,4 +1,5 @@
 from .crud_fruit_type import fruit_type
+from .crud_fruit_maturation_stage import fruit_maturation_stage
 
 # For a new basic set of CRUD operations you could just do
 

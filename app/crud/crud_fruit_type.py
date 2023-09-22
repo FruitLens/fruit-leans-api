@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, List
 
 from sqlalchemy.orm import Session
 
@@ -8,6 +8,11 @@ from app.schemas.fruit_type import FruitTypeCreate, FruitTypeUpdate
 
 
 class CRUDFruitType(CRUDBase[FruitType, FruitTypeCreate, FruitTypeUpdate]):
+    def get_all(
+        self, db: Session, *, skip: int = 0, limit: int = 100
+    ) -> List[FruitType]:
+        return db.query(FruitType).offset(skip).limit(limit).all()
+
     def get_by_name(self, db: Session, *, name: str) -> Optional[FruitType]:
         return db.query(FruitType).filter(FruitType.name == name).first()
 
