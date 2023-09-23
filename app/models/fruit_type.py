@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class FruitType(Base):
     __tablename__ = "fruit_type"
     id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
+    name = Column(String, unique=True, nullable=False)
 
     def __repr__(self):
         return f"FruitType(id={self.id!r}, name={self.name!r})"
