@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.api import deps
 
-router = APIRouter()
+router = APIRouter(prefix="/analyses", tags=["analyses"])
 
 
 @router.get("/", response_model=str)
