@@ -1,4 +1,4 @@
-from typing import Any, List, Annotated, Union
+from typing import Any, List, Annotated
 
 from fastapi import (
     APIRouter,
@@ -29,25 +29,6 @@ def get_all(db: Session = Depends(deps.get_db), skip: int = 0, limit: int = 100)
     return crud.analysis.get_all(db, skip=skip, limit=limit)
 
 
-@router.post("/", response_model=schemas.Analysis)
-def create_analysis(
-    *, db: Session = Depends(deps.get_db), analysis_in: schemas.AnalysisCreate
-) -> Any:
-    """
-    Create new analysis.
-    """
-    analysis = crud.analysis.get_by_telegram_img_id(
-        db, telegram_img_id=analysis_in.telegram_img_id
-    )
-    if analysis:
-        raise HTTPException(
-            status_code=400,
-            detail=f"The analysis of image {analysis_in.telegram_img_id} already exists.",
-        )
-
-    return crud.analysis.create(db, obj_in=analysis_in)
-
-
 @router.post("/predict/")
 async def predict_fruit_from_image(
     *,
@@ -56,6 +37,13 @@ async def predict_fruit_from_image(
     telegram_img_id: Annotated[str, Form()],
     telegram_conversation_id: Annotated[str, Form()],
 ):
+    analysis = crud.analysis.get_by_telegram_img_id(db, telegram_img_id=telegram_img_id)
+    if analysis:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Analysis of telegram_img_id {telegram_img_id} already exists.",
+        )
+
     prediction = model_predictions.predict(file)
 
     type_id = crud.fruit_type.get_by_name(db, name=prediction["type"]["name"]).id
