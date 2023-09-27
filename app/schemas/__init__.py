@@ -6,3 +6,4 @@ from .fruit_maturation_stage import (
     FruitMaturationStageInDB,
     FruitMaturationStageUpdate,
 )
+from .user_feedback import UserFeedback

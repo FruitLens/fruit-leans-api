@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union, Dict, Any
 
 from sqlalchemy.orm import Session
 
@@ -21,6 +21,19 @@ class CRUDAnalysis(CRUDBase[Analysis, AnalysisCreate, AnalysisUpdate]):
             .filter(Analysis.telegram_img_id == telegram_img_id)
             .first()
         )
+
+    def update(
+        self,
+        db: Session,
+        *,
+        db_obj: Analysis,
+        obj_in: Union[AnalysisUpdate, Dict[str, Any]]
+    ) -> Analysis:
+        if isinstance(obj_in, dict):
+            update_data = obj_in
+        else:
+            update_data = obj_in.dict(exclude_unset=True)
+        return super().update(db, db_obj=db_obj, obj_in=update_data)
 
 
 analysis = CRUDAnalysis(Analysis)

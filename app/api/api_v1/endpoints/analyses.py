@@ -1,11 +1,19 @@
-from typing import Any, List, Annotated
+from typing import Any, List, Annotated, Union
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, Form, File
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    UploadFile,
+    Form,
+    File,
+    Path,
+)
 from sqlalchemy.orm import Session
 
 from app import crud, schemas
 from app.api import deps
-import app.crud.model_predictions as model_predictions
+import app.crud.crud_model_predictions as model_predictions
 from app.crud.upload_img_to_s3 import upload_img_to_s3
 
 router = APIRouter(prefix="/analyses", tags=["analyses"])
@@ -70,3 +78,45 @@ async def predict_fruit_from_image(
     crud.analysis.create(db, obj_in=analysis_in)
 
     return prediction
+
+
+@router.put("/feedback/{telegram_img_id}")
+async def update_analysis_with_user_feedback(
+    *,
+    db: Session = Depends(deps.get_db),
+    telegram_img_id: Annotated[str, Path(title="The ID of the analysis to be updated")],
+    feedback: schemas.UserFeedback,
+):
+    analysis = crud.analysis.get_by_telegram_img_id(db, telegram_img_id=telegram_img_id)
+    if not analysis:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Analysis of telegram_img_id {telegram_img_id} does not exists.",
+        )
+
+    fruit_type = crud.fruit_type.get_by_name(db, name=feedback.user_class_fruit_type)
+    if not fruit_type:
+        raise HTTPException(
+            status_code=400,
+            detail=f"FruitType of name {feedback.user_class_fruit_type} does not exists.",
+        )
+
+    maturation_stage = crud.fruit_maturation_stage.get_by_name(
+        db, name=feedback.user_class_maturation_stage
+    )
+    if not maturation_stage:
+        raise HTTPException(
+            status_code=400,
+            detail=f"FruitMaturationStage of name {feedback.user_class_maturation_stage} does not exists.",
+        )
+
+    updated = crud.analysis.update(
+        db,
+        db_obj=analysis,
+        obj_in={
+            "user_predicted_fruit_type_id": fruit_type.id,
+            "user_predicted_fruit_maturation_stage_id": maturation_stage.id,
+            "user_approval": feedback.user_approval,
+        },
+    )
+    return updated
