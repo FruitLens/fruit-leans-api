@@ -1,4 +1,5 @@
 import secrets
+import os
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import AnyHttpUrl, BaseSettings, HttpUrl, PostgresDsn, validator
@@ -37,6 +38,13 @@ class Settings(BaseSettings):
     # FRUIT_TYPE_CLASS_NAMES = ["APPLE", "BANANA", "ORANGE"]
     # FRUIT_STAGES_CLASS_NAMES = ["OVERRIPE", "RAW", "RIPE"]
     S3_BUCKET_NAME: str = "fruit-lens-dream-team-training-data"
+
+    TYPE_CLASSIFICATION_MODEL_PATH: str = os.path.join(
+        "models", "fruit_type_classifier_v2.h5"
+    )
+    STAGE_MATURATION_CLASSIFICATION_MODEL_PATH: str = os.path.join(
+        "models", "banana_stages_classifier_v3.h5"
+    )
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:

@@ -1,10 +1,12 @@
-from typing import Any, List
+from typing import Any, List, Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, Form, File
 from sqlalchemy.orm import Session
 
-from app import crud, models, schemas
+from app import crud, schemas
 from app.api import deps
+import app.crud.model_predictions as model_predictions
+from app.crud.upload_img_to_s3 import upload_img_to_s3
 
 router = APIRouter(prefix="/analyses", tags=["analyses"])
 
@@ -21,7 +23,7 @@ def get_all(db: Session = Depends(deps.get_db), skip: int = 0, limit: int = 100)
 
 @router.post("/", response_model=schemas.Analysis)
 def create_analysis(
-        *, db: Session = Depends(deps.get_db), analysis_in: schemas.AnalysisCreate
+    *, db: Session = Depends(deps.get_db), analysis_in: schemas.AnalysisCreate
 ) -> Any:
     """
     Create new analysis.
@@ -36,3 +38,35 @@ def create_analysis(
         )
 
     return crud.analysis.create(db, obj_in=analysis_in)
+
+
+@router.post("/predict/")
+async def predict_fruit_from_image(
+    *,
+    db: Session = Depends(deps.get_db),
+    file: Annotated[UploadFile, File()],
+    telegram_img_id: Annotated[str, Form()],
+    telegram_conversation_id: Annotated[str, Form()],
+):
+    prediction = model_predictions.predict(file)
+
+    type_id = crud.fruit_type.get_by_name(db, name=prediction["type"]["name"]).id
+    maturation_stage_id = crud.fruit_maturation_stage.get_by_name(
+        db, name=prediction["maturation_stage"]["name"]
+    ).id
+
+    await upload_img_to_s3(
+        file,
+        f"{telegram_img_id}_{type_id}_{maturation_stage_id}.{file.filename.split('.')[-1]}",
+    )
+
+    analysis_in = schemas.AnalysisCreate(
+        telegram_conversation_id=telegram_conversation_id,
+        telegram_img_id=telegram_img_id,
+        model_predicted_fruit_type_id=type_id,
+        model_predicted_fruit_maturation_stage_id=maturation_stage_id,
+    )
+
+    crud.analysis.create(db, obj_in=analysis_in)
+
+    return prediction
