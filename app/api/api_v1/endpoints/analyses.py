@@ -82,29 +82,34 @@ async def update_analysis_with_user_feedback(
             detail=f"Analysis of telegram_img_id {telegram_img_id} does not exists.",
         )
 
+    obj_in = {
+        "user_approval": feedback.user_approval,
+        "user_predicted_fruit_type_id": None,
+        "user_predicted_fruit_maturation_stage_id": None,
+    }
+
     fruit_type = crud.fruit_type.get_by_name(db, name=feedback.user_class_fruit_type)
     if not fruit_type:
         raise HTTPException(
             status_code=400,
             detail=f"FruitType of name {feedback.user_class_fruit_type} does not exists.",
         )
+    obj_in["user_predicted_fruit_type_id"] = fruit_type.id
 
-    maturation_stage = crud.fruit_maturation_stage.get_by_name(
-        db, name=feedback.user_class_maturation_stage
-    )
-    if not maturation_stage:
-        raise HTTPException(
-            status_code=400,
-            detail=f"FruitMaturationStage of name {feedback.user_class_maturation_stage} does not exists.",
+    if feedback.user_class_maturation_stage:
+        maturation_stage = crud.fruit_maturation_stage.get_by_name(
+            db, name=feedback.user_class_maturation_stage
         )
+        if not maturation_stage:
+            raise HTTPException(
+                status_code=400,
+                detail=f"FruitMaturationStage of name {feedback.user_class_maturation_stage} does not exists.",
+            )
+        obj_in["user_predicted_fruit_maturation_stage_id"] = maturation_stage.id
 
     updated = crud.analysis.update(
         db,
         db_obj=analysis,
-        obj_in={
-            "user_predicted_fruit_type_id": fruit_type.id,
-            "user_predicted_fruit_maturation_stage_id": maturation_stage.id,
-            "user_approval": feedback.user_approval,
-        },
+        obj_in=obj_in,
     )
     return updated
