@@ -47,9 +47,12 @@ async def predict_fruit_from_image(
     prediction = model_predictions.predict(file)
 
     type_id = crud.fruit_type.get_by_name(db, name=prediction["type"]["name"]).id
-    maturation_stage_id = crud.fruit_maturation_stage.get_by_name(
-        db, name=prediction["maturation_stage"]["name"]
-    ).id
+
+    maturation_stage_id = None
+    if prediction["type"]["name"] == "BANANA":
+        maturation_stage_id = crud.fruit_maturation_stage.get_by_name(
+            db, name=prediction["maturation_stage"]["name"]
+        ).id
 
     await upload_img_to_s3(
         file,
