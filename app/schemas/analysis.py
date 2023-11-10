@@ -9,7 +9,8 @@ class AnalysisBase(BaseModel):
     telegram_conversation_id: str
     model_predicted_fruit_type_id: int
     model_predicted_fruit_maturation_stage_id: Optional[int]
-
+    model_fruit_type_name: str
+    model_fruit_stage_name: Optional[str]
 
 # Properties to receive on fruit_maturation_stage creation
 class AnalysisCreate(AnalysisBase):
