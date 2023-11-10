@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, ForeignKey, Boolean, Text, String
+from sqlalchemy.sql import func
+from sqlalchemy import Column, Integer, ForeignKey, Boolean, Text, String, DateTime
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
@@ -12,6 +13,12 @@ class Analysis(Base):
 
     model_predicted_fruit_type_id = Column(Integer, ForeignKey("fruit_type.id"))
     user_predicted_fruit_type_id = Column(Integer, ForeignKey("fruit_type.id"))
+
+    model_fruit_type_name = Column(String, nullable=False, server_default="UNKNOWN")
+    model_fruit_stage_name = Column(String)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     model_predicted_fruit_type = relationship(
         "FruitType",

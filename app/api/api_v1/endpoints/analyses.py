@@ -64,6 +64,8 @@ async def predict_fruit_from_image(
         telegram_img_id=telegram_img_id,
         model_predicted_fruit_type_id=type_id,
         model_predicted_fruit_maturation_stage_id=maturation_stage_id,
+        model_fruit_type_name=prediction["model_fruit_type_name"],
+        model_fruit_stage_name=prediction["model_stage_name"],
     )
 
     crud.analysis.create(db, obj_in=analysis_in)

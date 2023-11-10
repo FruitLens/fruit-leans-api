@@ -33,9 +33,11 @@ def predict(img_file):
 
     fruit_type_class, fruit_type_confidence = predict_identification(img_array)
     fruit_stage_class, fruit_stage_confidence = None, None
+    model_fruit_stage_name = None
 
     if fruit_type_class == "BANANA":
         fruit_stage_class, fruit_stage_confidence = predict_stages(img_array)
+        model_fruit_stage_name = settings.STAGE_MATURATION_CLASSIFICATION_MODEL_NAME
 
     return {
         "type": {"name": fruit_type_class, "confidence": fruit_type_confidence},
@@ -43,6 +45,8 @@ def predict(img_file):
             "name": fruit_stage_class,
             "confidence": fruit_stage_confidence,
         },
+        "model_fruit_type_name": settings.TYPE_CLASSIFICATION_MODEL_NAME,
+        "model_stage_name": model_fruit_stage_name,
     }
 
 
