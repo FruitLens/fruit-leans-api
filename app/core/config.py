@@ -39,8 +39,8 @@ class Settings(BaseSettings):
     # FRUIT_STAGES_CLASS_NAMES = ["OVERRIPE", "RAW", "RIPE"]
     S3_BUCKET_NAME: str = "fruit-lens-dream-team-training-data"
 
-    TYPE_CLASSIFICATION_MODEL_NAME: str = "fruit_random_v1.h5"
-    STAGE_MATURATION_CLASSIFICATION_MODEL_NAME: str = "banana_stages_classifier_v3.h5"
+    TYPE_CLASSIFICATION_MODEL_NAME: str = "fruits_model_v2.hdf5"
+    STAGE_MATURATION_CLASSIFICATION_MODEL_NAME: str = "bananas_model_v2.hdf5"
 
     TYPE_CLASSIFICATION_MODEL_PATH: str = os.path.join(
         "models", TYPE_CLASSIFICATION_MODEL_NAME

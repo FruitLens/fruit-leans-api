@@ -12,6 +12,7 @@ class AnalysisBase(BaseModel):
     model_fruit_type_name: str
     model_fruit_stage_name: Optional[str]
 
+
 # Properties to receive on fruit_maturation_stage creation
 class AnalysisCreate(AnalysisBase):
     pass
