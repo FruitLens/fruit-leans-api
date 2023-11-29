@@ -49,19 +49,25 @@ def predict(img_file):
 
 def predict_identification(img_array):
     predictions = type_class_model.predict(img_array, verbose=False)
-    score = tf.nn.softmax(predictions[0])
+    print(predictions)
+    # score = tf.nn.softmax(predictions[0])
 
-    _type = FRUIT_TYPE_CLASS_NAMES[np.argmax(score)]
-    confidence = 100 * np.max(score)
+    sel_class = np.argmax(predictions[0])
+
+    _type = FRUIT_TYPE_CLASS_NAMES[sel_class]
+    confidence = 100 * predictions[0][sel_class]
 
     return _type, confidence
 
 
 def predict_stages(img_array):
     predictions = maturation_stage_class_model.predict(img_array, verbose=False)
-    score = tf.nn.softmax(predictions[0])
+    print(predictions)
+    # score = tf.nn.softmax(predictions[0])
 
-    stage = FRUIT_STAGES_CLASS_NAMES[np.argmax(score)]
-    confidence = 100 * np.max(score)
+    sel_class = np.argmax(predictions[0])
+
+    stage = FRUIT_STAGES_CLASS_NAMES[sel_class]
+    confidence = 100 * predictions[0][sel_class]
 
     return stage, confidence
